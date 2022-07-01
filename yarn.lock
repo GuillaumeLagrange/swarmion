@@ -4661,6 +4661,7 @@ __metadata:
     "@swarmion/configuration": ^0.8.6
     "@swarmion/eslint-plugin": ^0.8.6
     "@swarmion/orchestrator-contracts": ^0.8.6
+    "@swarmion/serverless-cdk-plugin": ^0.8.6
     "@swarmion/serverless-configuration": ^0.8.6
     "@swarmion/serverless-contracts": ^0.8.6
     "@swarmion/serverless-helpers": ^0.8.6
@@ -4875,6 +4876,18 @@ __metadata:
     typescript: ^4.7.4
   languageName: unknown
   linkType: soft
+
+"@swarmion/serverless-cdk-plugin@npm:^0.8.6":
+  version: 0.8.6
+  resolution: "@swarmion/serverless-cdk-plugin@npm:0.8.6"
+  dependencies:
+    "@babel/runtime": ^7.18.6
+    "@serverless/typescript": ^3.19.0
+    aws-cdk-lib: ^2.31.1
+    lodash: ^4.17.21
+  checksum: 0719bd531dbcefb119b4ede0f67488a46dd4b4072a167639ec2179365b45881992198847e088689144c42f5bbc4dc90ad0ec9313ec77186ff027ce7fe8a0ae97
+  languageName: node
+  linkType: hard
 
 "@swarmion/serverless-cdk-plugin@workspace:packages/serverless-cdk-plugin":
   version: 0.0.0-use.local

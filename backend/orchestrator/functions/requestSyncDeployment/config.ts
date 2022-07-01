@@ -2,17 +2,15 @@ import { requestSyncDeployment } from '@swarmion/orchestrator-contracts';
 import { getTrigger } from '@swarmion/serverless-contracts';
 import { getHandlerPath, LambdaFunction } from '@swarmion/serverless-helpers';
 
-import { cdkStack } from 'resources';
-
 const config: LambdaFunction = {
   environment: {
-    ORCHESTRATOR_TABLE_NAME: cdkStack.resolve(cdkStack.dynamodbName) as string,
+    ORCHESTRATOR_TABLE_NAME: '${serverlessCdkBridgePlugin:dynamodbName}',
   },
   handler: getHandlerPath(__dirname),
   iamRoleStatements: [
     {
       Effect: 'Allow',
-      Resource: [cdkStack.resolve(cdkStack.dynamodbArn)],
+      Resource: ['${serverlessCdkBridgePlugin:dynamodbArn}'],
       Action: ['dynamodb:PutItem'],
     },
   ],
