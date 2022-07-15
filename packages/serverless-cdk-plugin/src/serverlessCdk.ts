@@ -4,8 +4,8 @@ import * as Serverless from 'serverless';
 import * as Plugin from 'serverless/classes/Plugin';
 import resolveConfigPath from 'serverless/lib/cli/resolve-configuration-path';
 
-import { ServerlessConstruct } from 'helper';
-import { CdkPluginConfig, CloudFormationTemplate } from 'types';
+import { CdkPluginConfig, ServerlessConstruct } from 'helper';
+import { CloudFormationTemplate } from 'types';
 import { throwIfBootstrapMetadataDetected } from 'utils';
 
 type ServerlessConfigFile = Serverless & CdkPluginConfig;

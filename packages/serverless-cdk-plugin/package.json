@@ -1,7 +1,7 @@
 {
   "name": "@swarmion/serverless-cdk-plugin",
   "description": "Serverless plugin to use CDK constructs in serverless framework applications",
-  "version": "0.8.4",
+  "version": "0.8.6",
   "license": "MIT",
   "homepage": "https://www.swarmion.dev",
   "bugs": "https://github.com/swarmion/swarmion/issues",
@@ -18,7 +18,9 @@
   "files": [
     "dist"
   ],
-  "module": "dist/esm/index.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "scripts": {
     "lint-fix": "yarn linter-base-config --fix",
     "lint-fix-all": "yarn lint-fix .",
@@ -66,10 +68,17 @@
     "typescript": "^4.7.4"
   },
   "exports": {
-    "./helpers": "./dist/cjs/helpers.js",
-    ".": "./dist/cjs/index.js"
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./helper": {
+      "require": "./dist/cjs/helper.js",
+      "import": "./dist/esm/helper.js",
+      "types": "./dist/types/helper.d.ts"
+    }
   },
-  "moduleResolution": "Node16",
   "nx": {
     "targets": {
       "package": {
@@ -77,13 +86,6 @@
           "packages/serverless-cdk-plugin/dist"
         ]
       }
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "helpers": [
-        "./dist/types/helpers.d.ts"
-      ]
     }
   }
 }
