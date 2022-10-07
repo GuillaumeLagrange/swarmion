@@ -16,6 +16,27 @@ import { throwIfBootstrapMetadataDetected } from 'utils';
 
 type ServerlessConfigFile = AWS & ServerlessCdkPluginConfig;
 
+type ResolveVariable = (variableName: string) => Promise<string>;
+
+const resolveVariablesInString = async (
+  resolveValue: ResolveVariable,
+  stringToResolve: string,
+) => {
+  try {
+    const resolvedString = await resolveValue(stringToResolve);
+
+    // If variable was resolved in the string, the return value is ${myResolvedValue}
+    if (!resolvedString.match(/\$\{.*\}/)) {
+      throw new Error('Unexpected returned value from sls variable resolver');
+    }
+
+    return resolvedString.slice('${'.length, -'}'.length);
+  } catch {
+    // THe resolving failed, we silently return the original string
+    return stringToResolve;
+  }
+};
+
 const resolveServerlessConfigPath = async (): Promise<string> => {
   return resolveConfigPath();
 };
@@ -75,10 +96,6 @@ export class ServerlessCdkPlugin implements Plugin {
 
     this.serverless = serverless;
 
-    console.log(serverless.service.provider);
-    console.log(serverless.config);
-    console.log('######');
-
     this.commands = {};
 
     this.stackName = 'myStackName';
@@ -96,12 +113,34 @@ export class ServerlessCdkPlugin implements Plugin {
 
     this.configurationVariablesSources = {
       serverlessCdkBridgePlugin: {
-        resolve: async ({ address }: { address: string }) => {
+        resolve: async ({
+          resolveVariable,
+          address,
+        }: {
+          resolveVariable: ResolveVariable;
+          address: string;
+        }) => {
           await this.resolveConstruct();
 
           if (this.construct === undefined) {
             throw new Error('Construct has not been instanciated');
           }
+
+          console.log(
+            await resolveVariablesInString(resolveVariable, 'this is a test'),
+          );
+          console.log(
+            await resolveVariablesInString(
+              resolveVariable,
+              'this is a test ${sls:stage}',
+            ),
+          );
+          console.log(
+            await resolveVariablesInString(
+              resolveVariable,
+              '${this is a test sls:stage}',
+            ),
+          );
 
           if (!(address in this.construct)) {
             throw new Error('Unexpected');
@@ -144,7 +183,7 @@ export class ServerlessCdkPlugin implements Plugin {
       typeof ServerlessCdkConstruct === 'function' &&
       ServerlessCdkConstruct.prototype instanceof ServerlessConstruct;
 
-    this.serverless.pluginManager.
+    // this.serverless.pluginManager.
 
     if (isServerlessConstruct) {
       this.construct = new ServerlessCdkConstruct(this.stack, 'cdk', {

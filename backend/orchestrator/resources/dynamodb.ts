@@ -15,6 +15,7 @@ export class OrchestratorDynamodb extends ServerlessCdkPlugin.ServerlessConstruc
     super(scope, id, serverlessProps);
 
     const table = new Table(this, 'OrchestratorTable', {
+      tableName: '$sls:stage',
       partitionKey: { name: PARTITION_KEY, type: AttributeType.STRING },
       sortKey: { name: SORT_KEY, type: AttributeType.STRING },
       billingMode: BillingMode.PAY_PER_REQUEST,

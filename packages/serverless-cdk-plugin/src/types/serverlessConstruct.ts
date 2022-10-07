@@ -37,7 +37,7 @@ export class ServerlessConstruct extends Construct {
 
     service;
 
-    console.log(stage);
+    // console.log(stage);
     // config.provider.stage !== undefined &&
     // config.provider.stage in Object.keys(config.params)
     //   ? config.provider.stage
