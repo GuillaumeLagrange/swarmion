@@ -41,6 +41,7 @@
     "@babel/runtime": "^7.18.9",
     "@serverless/typescript": "^3.21.0",
     "lodash": "^4.17.21",
+    "traverse": "^0.6.6",
     "ts-toolbelt": "^9.6.0"
   },
   "devDependencies": {
