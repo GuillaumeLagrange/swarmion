@@ -5,7 +5,7 @@
     "types": ["node", "vitest/globals"],
     "lib": ["es2020"],
     "removeComments": true,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "sourceMap": true,

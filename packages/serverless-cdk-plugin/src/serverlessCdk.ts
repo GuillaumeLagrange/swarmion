@@ -1,3 +1,4 @@
+import { AWS } from '@serverless/typescript';
 import { App, Stack } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import merge from 'lodash/merge';
@@ -13,7 +14,7 @@ import {
 } from 'types';
 import { throwIfBootstrapMetadataDetected } from 'utils';
 
-type ServerlessConfigFile = Serverless & ServerlessCdkPluginConfig;
+type ServerlessConfigFile = AWS & ServerlessCdkPluginConfig;
 
 const resolveServerlessConfigPath = async (): Promise<string> => {
   return resolveConfigPath();
@@ -22,8 +23,7 @@ const resolveServerlessConfigPath = async (): Promise<string> => {
 const getServerlessConfigFile = async (): Promise<ServerlessConfigFile> => {
   const configPath = await resolveServerlessConfigPath();
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const serverlessConfigFile = (await require(configPath)) as Serverless & {
+  const serverlessConfigFile = (await require(configPath)) as AWS & {
     construct: unknown;
   };
 
@@ -74,6 +74,10 @@ export class ServerlessCdkPlugin implements Plugin {
     this.log = log;
 
     this.serverless = serverless;
+
+    console.log(serverless.service.provider);
+    console.log(serverless.config);
+    console.log('######');
 
     this.commands = {};
 
@@ -140,9 +144,12 @@ export class ServerlessCdkPlugin implements Plugin {
       typeof ServerlessCdkConstruct === 'function' &&
       ServerlessCdkConstruct.prototype instanceof ServerlessConstruct;
 
+    this.serverless.pluginManager.
+
     if (isServerlessConstruct) {
       this.construct = new ServerlessCdkConstruct(this.stack, 'cdk', {
-        serverless: serverlessConfigFile,
+        config: serverlessConfigFile,
+        service: this.serverless.service,
       });
     } else {
       this.construct = new ServerlessCdkConstruct(this.stack, 'cdk');
