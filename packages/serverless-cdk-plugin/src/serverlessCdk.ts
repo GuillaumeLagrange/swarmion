@@ -12,30 +12,14 @@ import {
   ServerlessCdkPluginConfig,
   ServerlessConstruct,
 } from 'types';
-import { throwIfBootstrapMetadataDetected } from 'utils';
+import {
+  resolveVariablesInCdkOutput,
+  throwIfBootstrapMetadataDetected,
+} from 'utils';
 
 type ServerlessConfigFile = AWS & ServerlessCdkPluginConfig;
 
 type ResolveVariable = (variableName: string) => Promise<string>;
-
-const resolveVariablesInString = async (
-  resolveValue: ResolveVariable,
-  stringToResolve: string,
-) => {
-  try {
-    const resolvedString = await resolveValue(stringToResolve);
-
-    // If variable was resolved in the string, the return value is ${myResolvedValue}
-    if (!resolvedString.match(/\$\{.*\}/)) {
-      throw new Error('Unexpected returned value from sls variable resolver');
-    }
-
-    return resolvedString.slice('${'.length, -'}'.length);
-  } catch {
-    // THe resolving failed, we silently return the original string
-    return stringToResolve;
-  }
-};
 
 const resolveServerlessConfigPath = async (): Promise<string> => {
   return resolveConfigPath();
@@ -107,8 +91,8 @@ export class ServerlessCdkPlugin implements Plugin {
     this.stack = new Stack(this.app, this.stackName);
 
     this.hooks = {
-      initialize: async () => await this.resolveConstruct(),
-      'after:package:compileEvents': () => this.appendCloudformationResources(),
+      // // initialize: async () => await this.resolveConstruct(),
+      // 'after:package:compileEvents': () => this.appendCloudformationResources(),
     };
 
     this.configurationVariablesSources = {
@@ -120,27 +104,11 @@ export class ServerlessCdkPlugin implements Plugin {
           resolveVariable: ResolveVariable;
           address: string;
         }) => {
-          await this.resolveConstruct();
+          await this.resolveConstruct(resolveVariable);
 
           if (this.construct === undefined) {
             throw new Error('Construct has not been instanciated');
           }
-
-          console.log(
-            await resolveVariablesInString(resolveVariable, 'this is a test'),
-          );
-          console.log(
-            await resolveVariablesInString(
-              resolveVariable,
-              'this is a test ${sls:stage}',
-            ),
-          );
-          console.log(
-            await resolveVariablesInString(
-              resolveVariable,
-              '${this is a test sls:stage}',
-            ),
-          );
 
           if (!(address in this.construct)) {
             throw new Error('Unexpected');
@@ -164,18 +132,19 @@ export class ServerlessCdkPlugin implements Plugin {
 
   public static ServerlessConstruct = ServerlessConstruct;
 
-  async resolveConstruct(): Promise<void> {
+  async resolveConstruct(resolveVariable: ResolveVariable): Promise<void> {
     if (
       this.construct === undefined &&
       this.constructInstantiationPromise === undefined
     ) {
-      this.constructInstantiationPromise = this.instantiateConstruct();
+      this.constructInstantiationPromise =
+        this.instantiateConstruct(resolveVariable);
     }
 
     await this.constructInstantiationPromise;
   }
 
-  async instantiateConstruct(): Promise<void> {
+  async instantiateConstruct(resolveVariable: ResolveVariable): Promise<void> {
     const serverlessConfigFile = await getServerlessConfigFile();
     const ServerlessCdkConstruct = serverlessConfigFile.construct;
 
@@ -193,17 +162,25 @@ export class ServerlessCdkPlugin implements Plugin {
     } else {
       this.construct = new ServerlessCdkConstruct(this.stack, 'cdk');
     }
+
+    await this.appendCloudformationResources(resolveVariable);
   }
 
-  appendCloudformationResources(): void {
+  async appendCloudformationResources(
+    resolveVariable: ResolveVariable,
+  ): Promise<void> {
     const { Resources, Outputs, Conditions, Mappings } = this.app
       .synth()
       .getStackByName(this.stackName).template as CloudFormationTemplate;
 
+    const cdkCloudFormationData = { Resources, Outputs, Conditions, Mappings };
+
+    await resolveVariablesInCdkOutput(resolveVariable, cdkCloudFormationData);
+
     throwIfBootstrapMetadataDetected({ Resources });
 
     merge(this.serverless.service, {
-      resources: { Resources, Outputs, Conditions, Mappings },
+      resources: cdkCloudFormationData,
     });
   }
 }

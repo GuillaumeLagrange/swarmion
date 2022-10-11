@@ -1,15 +1,13 @@
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 
-import { ServerlessConstruct, ServerlessProps } from 'types';
-
-export class MyConstruct extends ServerlessConstruct {
+export class MyConstruct extends Construct {
   public dynamodbArn: string;
   public dynamodbName: string;
   public testServerlessConfigValue: string | undefined;
 
-  constructor(scope: Construct, id: string, { serverless }: ServerlessProps) {
-    super(scope, id, { serverless });
+  constructor(scope: Construct, id: string) {
+    super(scope, id);
 
     const { tableArn, tableName } = new Table(this, 'OrchestratorTable', {
       partitionKey: { name: 'PK', type: AttributeType.STRING },
@@ -19,7 +17,5 @@ export class MyConstruct extends ServerlessConstruct {
 
     this.dynamodbArn = tableArn;
     this.dynamodbName = tableName;
-    this.testServerlessConfigValue = serverless.params?.default
-      .myParam as string;
   }
 }

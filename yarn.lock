@@ -4876,6 +4876,7 @@ __metadata:
     "@serverless/typescript": ^3.21.0
     "@types/jest": ^28.1.6
     "@types/node": ^18.6.3
+    "@types/traverse": ^0.6.32
     "@zerollup/ts-transform-paths": ^1.7.18
     aws-cdk-lib: ^2.34.2
     babel-plugin-module-resolver: ^4.1.0
@@ -5684,6 +5685,13 @@ __metadata:
     "@types/minipass": "*"
     "@types/node": "*"
   checksum: 06cfffc606525fab223f7e7cae74b88347a6c21de39454a9b85a56c61b4cab034e9cefacd6a053c7ac2a07e29bed71ce72bc4ca8bc101f61e2e5248950508b7d
+  languageName: node
+  linkType: hard
+
+"@types/traverse@npm:^0.6.32":
+  version: 0.6.32
+  resolution: "@types/traverse@npm:0.6.32"
+  checksum: 0d27f4758e1da79463c42cdd91de018095048e5c3963ad108b97044d5f43ea48b071da87062fdd4ff46407461802cc47367dd90b8f4a03a3dcf2ff94840d4909
   languageName: node
   linkType: hard
 
