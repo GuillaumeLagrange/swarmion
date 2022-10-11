@@ -13,6 +13,8 @@ describe('customCdK', () => {
 
     const template = Template.fromJSON(cfTemplate);
 
+    console.log(JSON.stringify(cfTemplate, null, 2));
+
     // Check that the variable name helper resolves to the correct value.
     const lambda = template.findResources('AWS::Lambda::Function');
     expect(

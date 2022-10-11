@@ -9,6 +9,7 @@ import { O } from 'ts-toolbelt';
 
 import {
   CloudFormationTemplate,
+  ResolveVariable,
   ServerlessCdkPluginConfig,
   ServerlessConstruct,
 } from 'types';
@@ -18,8 +19,6 @@ import {
 } from 'utils';
 
 type ServerlessConfigFile = AWS & ServerlessCdkPluginConfig;
-
-type ResolveVariable = (variableName: string) => Promise<string>;
 
 const resolveServerlessConfigPath = async (): Promise<string> => {
   return resolveConfigPath();
@@ -90,6 +89,7 @@ export class ServerlessCdkPlugin implements Plugin {
     });
     this.stack = new Stack(this.app, this.stackName);
 
+    // Everything happens in variable resolution, the only job of the hook is to remove the magic value
     this.hooks = {
       // // initialize: async () => await this.resolveConstruct(),
       // 'after:package:compileEvents': () => this.appendCloudformationResources(),
@@ -110,6 +110,12 @@ export class ServerlessCdkPlugin implements Plugin {
             throw new Error('Construct has not been instanciated');
           }
 
+          if (address === 'magicValue') {
+            console.log('found magic value');
+
+            return { value: 'magicValue' };
+          }
+
           if (!(address in this.construct)) {
             throw new Error('Unexpected');
           }
@@ -122,6 +128,13 @@ export class ServerlessCdkPlugin implements Plugin {
         },
       },
     };
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (this.serverless.service.custom === undefined) {
+      this.serverless.service.custom = {};
+    }
+    this.serverless.service.custom.magicValue =
+      '${serverlessCdkBridgePlugin:magicValue}';
   }
 
   public static getCdkPropertyHelper = <T extends Construct>(
@@ -151,8 +164,6 @@ export class ServerlessCdkPlugin implements Plugin {
     const isServerlessConstruct =
       typeof ServerlessCdkConstruct === 'function' &&
       ServerlessCdkConstruct.prototype instanceof ServerlessConstruct;
-
-    // this.serverless.pluginManager.
 
     if (isServerlessConstruct) {
       this.construct = new ServerlessCdkConstruct(this.stack, 'cdk', {

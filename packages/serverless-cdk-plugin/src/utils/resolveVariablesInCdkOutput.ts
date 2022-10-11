@@ -1,8 +1,6 @@
 import traverse from 'traverse';
 
-import { CloudFormationTemplate } from 'types';
-
-type ResolveVariable = (variableName: string) => Promise<string>;
+import { CloudFormationTemplate, ResolveVariable } from 'types';
 
 const resolveVariablesInString = async (
   resolveVariable: ResolveVariable,
